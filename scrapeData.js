@@ -45,8 +45,10 @@ const getLinkDetails = string => {
 const sort = a => a.sort();
 const getKey = key => obj => obj[key];
 const getFilters = projects => ({
-  status: fFlow(fMap(getKey('status')), fUniq, sort)(projects),
-  type: fFlow(fMap(getKey('types')), fFlatten, fUniq, sort)(projects)
+  status: fFlow(fMap(getKey('status')), fUniq, sort)(projects).filter(Boolean),
+  type: fFlow(fMap(getKey('types')), fFlatten, fUniq, sort)(projects).filter(
+    Boolean
+  )
 });
 
 (async () => {
@@ -79,7 +81,7 @@ const getFilters = projects => ({
             image: getImageUrl(image),
             imageSmall: getImageUrl(image_small),
             developers: fUniqBy('title', getLinkDetails(developer)),
-            url: `//urbantoronto/database/projects/${slug}`
+            url: `//urbantoronto.ca/database/projects/${slug}`
           };
         }
       );
