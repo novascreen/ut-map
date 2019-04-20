@@ -6,7 +6,6 @@ import ReactMapboxGl, {
   ZoomControl
 } from 'react-mapbox-gl';
 import getProjects from 'lib/getProjects';
-import marker from 'assets/marker';
 import ProjectPopup from 'components/ProjectPopup';
 
 const { REACT_APP_MAPBOX_ACCESS_TOKEN } = process.env;
@@ -29,19 +28,6 @@ const config = {
 const Map = ReactMapboxGl({
   accessToken: REACT_APP_MAPBOX_ACCESS_TOKEN
 });
-
-// const layoutLayer = { 'icon-image': 'building' };
-const layoutLayer = {
-  'icon-image': 'circle-11',
-  'icon-size': 1
-};
-const image = new Image();
-image.src = 'data:image/svg+xml;charset=utf-8;base64,' + btoa(marker);
-const images = ['building', image];
-
-const paintMarkers = {
-  'icon-color': '#0099FF'
-};
 
 const paintCircles = {
   'circle-radius': 5,
@@ -95,13 +81,6 @@ function App() {
         paint={paintBuildings}
       />
 
-      {/* <Layer
-        type="symbol"
-        id="marker"
-        layout={layoutLayer}
-        images={images}
-        paint={paintMarkers}
-      > */}
       <Layer id="marker" type="circle" paint={paintCircles}>
         {projects.map(project => (
           <Feature
