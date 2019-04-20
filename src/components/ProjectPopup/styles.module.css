@@ -1,0 +1,20 @@
+.root {
+  display: flex;
+  max-width: 300px;
+}
+
+.img {
+  display: block;
+  width: 75px;
+  height: 100%;
+  margin-right: 8px;
+  object-fit: cover;
+}
+
+.left {
+  
+}
+
+.right {
+
+}
