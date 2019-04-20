@@ -8,6 +8,7 @@ import ReactMapboxGl, {
 import ProjectPopup from 'components/ProjectPopup';
 import Filters from '../Filters';
 import { useData } from 'components/Data';
+import images from 'assets/images';
 
 const { REACT_APP_MAPBOX_ACCESS_TOKEN } = process.env;
 
@@ -32,11 +33,18 @@ const Map = ReactMapboxGl({
     '<a href="http://urbantoronto.ca" href="_blank">Data by urbantoronto.ca</a>'
 });
 
-const paintCircles = {
-  'circle-radius': 5,
-  'circle-color': '#0099FF',
-  'circle-stroke-width': 1,
-  'circle-stroke-color': '#fff'
+const markerLayout = {
+  'icon-image': '{marker}',
+  'icon-allow-overlap': true
+};
+const markerPaint = {};
+
+const markerMap = {
+  Complete: 'marker',
+  'On-Hold': 'marker',
+  'Pre-Construction': 'marker-preconstruction',
+  TBD: 'marker',
+  'Under Construction': 'marker-construction'
 };
 
 const paintBuildings = {
@@ -71,7 +79,7 @@ function App() {
     setViewport({
       ...viewport,
       center: feature.geometry.coordinates,
-      zoom: [16]
+      zoom: [14]
     });
     setHoverProject(null);
     setActiveProject(project);
@@ -91,7 +99,13 @@ function App() {
           paint={paintBuildings}
         />
 
-        <Layer id="marker" type="circle" paint={paintCircles}>
+        <Layer
+          type="symbol"
+          id="marker"
+          layout={markerLayout}
+          images={images}
+          paint={markerPaint}
+        >
           {projects.map(project => (
             <Feature
               key={project.title}
@@ -99,13 +113,14 @@ function App() {
               onMouseLeave={handleMouseLeave}
               onClick={handleClick(project)}
               coordinates={[project.longitude, project.latitude]}
+              properties={{marker: markerMap[project.status]}}
             />
           ))}
         </Layer>
         {activeProject && (
           <Popup
             key={activeProject.title}
-            offset={6}
+            offset={12}
             coordinates={[activeProject.longitude, activeProject.latitude]}
           >
             <ProjectPopup project={activeProject} />
@@ -114,7 +129,7 @@ function App() {
         {hoverProject && (
           <Popup
             key={hoverProject.title}
-            offset={6}
+            offset={12}
             coordinates={[hoverProject.longitude, hoverProject.latitude]}
           >
             {hoverProject.title}
