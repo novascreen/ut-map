@@ -15,6 +15,7 @@ export default function ProjectPopup({ project }) {
         <Box as="p">{project.address}</Box>
         <Box as="p" gutterBottom>
           {project.status}
+          {project.completion && ` (Completion: ${project.completion})`}
         </Box>
         <Box as="p">
           <a href={project.url} rel="noopener noreferrer" target="_blank">

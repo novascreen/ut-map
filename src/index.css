@@ -36,3 +36,11 @@ ul, li {
 a {
   color: #0099FF;
 }
+
+button {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  text-align: left;
+}

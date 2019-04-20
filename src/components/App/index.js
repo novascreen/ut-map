@@ -5,8 +5,10 @@ import ReactMapboxGl, {
   Popup,
   ZoomControl
 } from 'react-mapbox-gl';
-import getProjects from 'lib/getProjects';
 import ProjectPopup from 'components/ProjectPopup';
+import Filters from '../Filters';
+import { useData } from 'components/Data';
+import images from 'assets/images';
 
 const { REACT_APP_MAPBOX_ACCESS_TOKEN } = process.env;
 
@@ -21,20 +23,20 @@ const config = {
   flyToOptions: {
     speed: 0.8
   },
-  pitch: [60],
+  pitch: [30],
   bearing: [-15]
 };
 
 const Map = ReactMapboxGl({
-  accessToken: REACT_APP_MAPBOX_ACCESS_TOKEN
+  accessToken: REACT_APP_MAPBOX_ACCESS_TOKEN,
+  customAttribution:
+    '<a href="http://urbantoronto.ca" href="_blank">Data by urbantoronto.ca</a>'
 });
 
-const paintCircles = {
-  'circle-radius': 5,
-  'circle-color': '#0099FF',
-  'circle-stroke-width': 1,
-  'circle-stroke-color': '#fff'
+const markerLayout = {
+  'icon-image': 'marker'
 };
+const markerPaint = {};
 
 const paintBuildings = {
   'fill-extrusion-color': '#aaa',
@@ -52,55 +54,80 @@ const paintBuildings = {
 function App() {
   const [viewport, setViewport] = useState(initialViewport);
   const [activeProject, setActiveProject] = useState(null);
-
-  const projects = useMemo(() => getProjects(), []);
+  const [hoverProject, setHoverProject] = useState(null);
+  const [{ projects }] = useData();
 
   const handleDrag = () => setActiveProject(null);
-  const handleMouseEnter = ({ map }) =>
-    (map.getCanvas().style.cursor = 'pointer');
-  const handleMouseLeave = ({ map }) => (map.getCanvas().style.cursor = '');
+  const handleMouseEnter = project => ({ map, feature }) => {
+    map.getCanvas().style.cursor = 'pointer';
+    setHoverProject(project);
+  };
+  const handleMouseLeave = ({ map }) => {
+    setHoverProject(null);
+    map.getCanvas().style.cursor = '';
+  };
   const handleClick = project => ({ feature }) => {
     setViewport({
       ...viewport,
       center: feature.geometry.coordinates,
       zoom: [14]
     });
+    setHoverProject(null);
     setActiveProject(project);
   };
 
   return (
-    <Map className="map" {...viewport} {...config} onDrag={handleDrag}>
-      <ZoomControl />
-      <Layer
-        id="3d-buildings"
-        sourceId="composite"
-        sourceLayer="building"
-        filter={['==', 'extrude', 'true']}
-        type="fill-extrusion"
-        minZoom={14}
-        paint={paintBuildings}
-      />
+    <>
+      <Map className="map" {...viewport} {...config} onDrag={handleDrag}>
+        <ZoomControl />
+        <Layer
+          id="3d-buildings"
+          sourceId="composite"
+          sourceLayer="building"
+          filter={['==', 'extrude', 'true']}
+          type="fill-extrusion"
+          minZoom={14}
+          paint={paintBuildings}
+        />
 
-      <Layer id="marker" type="circle" paint={paintCircles}>
-        {projects.map(project => (
-          <Feature
-            key={project.title}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onClick={handleClick(project)}
-            coordinates={[project.longitude, project.latitude]}
-          />
-        ))}
-      </Layer>
-      {activeProject && (
-        <Popup
-          key={activeProject.title}
-          coordinates={[activeProject.longitude, activeProject.latitude]}
+        <Layer
+          type="symbol"
+          id="marker"
+          layout={markerLayout}
+          images={images}
+          paint={markerPaint}
         >
-          <ProjectPopup project={activeProject} />
-        </Popup>
-      )}
-    </Map>
+          {projects.map(project => (
+            <Feature
+              key={project.title}
+              onMouseEnter={handleMouseEnter(project)}
+              onMouseLeave={handleMouseLeave}
+              onClick={handleClick(project)}
+              coordinates={[project.longitude, project.latitude]}
+            />
+          ))}
+        </Layer>
+        {activeProject && (
+          <Popup
+            key={activeProject.title}
+            offset={12}
+            coordinates={[activeProject.longitude, activeProject.latitude]}
+          >
+            <ProjectPopup project={activeProject} />
+          </Popup>
+        )}
+        {hoverProject && (
+          <Popup
+            key={hoverProject.title}
+            offset={12}
+            coordinates={[hoverProject.longitude, hoverProject.latitude]}
+          >
+            {hoverProject.title}
+          </Popup>
+        )}
+      </Map>
+      <Filters />
+    </>
   );
 }
 
