@@ -3,7 +3,6 @@ const fs = require('fs');
 const fFlow = require('lodash/fp/flow');
 const fMap = require('lodash/fp/map');
 const fFlatten = require('lodash/fp/flatten');
-const fUniqBy = require('lodash/fp/uniqBy');
 const fUniq = require('lodash/fp/uniq');
 
 const url = 'https://urbantoronto.ca/map/';
@@ -39,15 +38,31 @@ const getFilters = projects => ({
     projects = JSON.parse(`[${projects}]`);
     projects = projects
       .filter(p => p.latitude && p.longitude)
-      .map(({ latitude, longitude, path, category, ...p }) => {
-        return {
-          ...p,
-          latitude: parseFloat(latitude),
-          longitude: parseFloat(longitude),
-          types: category.replace(/\s/g, '').split(','),
-          url: `https://urbantoronto.ca/${path}`
-        };
-      });
+      .map(
+        ({
+          latitude,
+          longitude,
+          path,
+          category,
+          // filter out these fields
+          website,
+          type,
+          city,
+          country,
+          storeys,
+          height,
+          region,
+          ...p
+        }) => {
+          return {
+            ...p,
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude),
+            types: category.replace(/\s/g, '').split(','),
+            url: `https://urbantoronto.ca/${path}`
+          };
+        }
+      );
 
     const filters = getFilters(projects);
 
