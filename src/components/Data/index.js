@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import data from 'data.json';
 import xor from 'lodash/xor';
 import getFilteredProjects from 'lib/getFilteredProjects';
@@ -57,18 +57,11 @@ export const DataProvider = ({ children }) => {
     actions
   };
 
-  // useEffect(() => {
-  // }, []);
-
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };
 
 export const useData = () => {
   const { state, actions } = React.useContext(DataContext);
-
-  // const toggle = favorite => dispatch({ type: 'toggle', payload: favorite });
-  // const update = favorite => dispatch({ type: 'update', payload: favorite });
-  // const move = (from, to) => dispatch({ type: 'move', payload: { from, to } });
 
   return [state, actions];
 };
